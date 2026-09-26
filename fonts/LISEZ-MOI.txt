@@ -1,0 +1,9 @@
+Déposer ici les fichiers web de Gotham (.woff2) :
+  Gotham-Light.woff2, Gotham-Book.woff2, Gotham-Medium.woff2,
+  Gotham-Bold.woff2, Gotham-Black.woff2
+
+Puis, dans index.html, décommenter les url() des blocs @font-face
+(en haut de la balise <style>).
+
+Sans ces fichiers, Gotham est utilisée si elle est installée sur
+l'appareil du visiteur, sinon Montserrat prend le relais.
