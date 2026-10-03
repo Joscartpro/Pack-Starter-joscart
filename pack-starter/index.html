@@ -23,10 +23,9 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://joscart.net/pack-starter/assets/social/og-pack-starter.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Fallback technique uniquement : Gotham reste la police de titrage prioritaire -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Gotham est auto-hébergée (fonts/) : plus aucune requête externe bloquante au rendu -->
+<link rel="preload" href="fonts/Gotham-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Gotham-Light.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* ==========================================================================
    Typographies de marque
@@ -62,7 +61,7 @@
   --paper:#F3F7FA;      /* blanc froid */
   --paper-2:#E8EFF4;
   --line:#DCE5EC;
-  --grey:#566A7C;       /* gris froid, texte secondaire sur clair */
+  --grey:#45596C;       /* gris froid, texte secondaire sur clair — contraste 7,1:1 sur blanc */
   --grey-d:#94A6B6;     /* gris froid, texte secondaire sur sombre */
   --ink:#001120;
 
@@ -110,6 +109,12 @@ ul,ol{list-style:none;padding:0}
 
 /* Sections — alternance Dark / Light */
 .sec{position:relative;padding-block:var(--sec-y)}
+/* Au premier affichage, les sections hors écran ne sont ni mises en page ni peintes :
+   environ 300 ms gagnés sur mobile. Une fois la page affichée, le script retire cette
+   optimisation (classe .cv-off) pour que les ancres et la recherche du navigateur
+   retrouvent des positions exactes. */
+.sec:not(.hero){content-visibility:auto;contain-intrinsic-size:auto 900px}
+.cv-off .sec:not(.hero){content-visibility:visible}
 .sec--dark{background:var(--night);color:var(--white);margin-inline:var(--panel-m);border-radius:var(--r-xl);isolation:isolate;overflow:hidden}
 .sec--light{background:var(--sec-light)}
 .sec--cool{background:var(--sec-cool)}
@@ -163,7 +168,8 @@ ul,ol{list-style:none;padding:0}
 .nav{position:fixed;left:0;right:0;top:0;z-index:100;padding-top:calc(env(safe-area-inset-top,0px) + 12px);padding-inline:calc(var(--panel-m) + 12px);pointer-events:none}
 .nav__bar{pointer-events:auto;max-width:1320px;margin-inline:auto;height:var(--nav-h);display:flex;align-items:center;gap:1rem;padding:0 10px 0 22px;border-radius:999px;
   border:1px solid transparent;transition:background-color .4s var(--ease),border-color .4s var(--ease),box-shadow .4s var(--ease),height .4s var(--ease)}
-.nav.is-scrolled .nav__bar{background:rgba(0,17,32,.78);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border-color:rgba(255,255,255,.08);box-shadow:0 18px 40px -24px rgba(0,0,0,.6);height:64px}
+.nav.is-scrolled .nav__bar{background:rgba(0,17,32,.94);border-color:rgba(255,255,255,.08);box-shadow:0 18px 40px -24px rgba(0,0,0,.6);height:64px}
+@media (min-width:1080px){.nav.is-scrolled .nav__bar{background:rgba(0,17,32,.78);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}}
 .nav__logo{display:block;width:132px;flex:none}
 .nav__logo img{width:100%}
 .nav__links{position:relative;display:none;align-items:center;gap:2px;margin-inline:auto;padding:5px;border-radius:999px}
@@ -216,7 +222,7 @@ ul,ol{list-style:none;padding:0}
 @media (max-width:700px){.hero__waves .wv{--amp:calc(5px + var(--i) * .8px)}}
 .hero__grid{display:grid;gap:clamp(40px,5vw,72px);align-items:center;flex:1}
 @media (min-width:1024px){.hero__grid{grid-template-columns:1.12fr .88fr}}
-.hero__title{font-family:var(--f-d);font-size:clamp(2.6rem,1rem + 4.3vw,5.1rem);line-height:.98;letter-spacing:-.035em;text-wrap:balance}
+.hero__title{font-family:var(--f-d);font-size:clamp(2.35rem,.9rem + 3.6vw,4.4rem);line-height:1;letter-spacing:-.035em;text-wrap:balance}
 .hero__title .t-bold{display:block;font-weight:700}
 .hero__title .t-light{display:block;font-weight:300;letter-spacing:-.03em;color:#E8F4F8}
 .hero__pack{display:flex;align-items:center;gap:.9rem;margin-top:1.6rem;font:500 clamp(1.15rem,1rem + .6vw,1.5rem)/1 var(--f-d);color:var(--cyan-2);letter-spacing:-.01em}
@@ -237,12 +243,10 @@ ul,ol{list-style:none;padding:0}
 .art__lensbig i{width:74%;height:74%;border-radius:50%;border:2.2cqw solid var(--cyan);display:grid;place-items:center}
 .art__lensbig i::after{content:"";width:62%;height:62%;border-radius:50%;background:radial-gradient(circle at 34% 30%,#fff 0 9%,#8fdcef 18%,var(--cyan) 46%,#002c3e 100%);
   animation:lensCore 3s ease-in-out infinite}
-.art__lensbig{animation:lensGlow 3s ease-in-out infinite}
+.art__lensbig::after{content:"";position:absolute;inset:-14%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(0,160,200,.55),rgba(0,160,200,0) 70%);opacity:0;animation:lensHalo 3s ease-in-out infinite}
+@keyframes lensHalo{0%,58%,100%{opacity:0}74%{opacity:1}88%{opacity:.25}}
 .art__lensbig .pulse{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(53,190,223,.55);opacity:0;animation:lensRing 3s cubic-bezier(.2,.7,.3,1) infinite}
-@keyframes lensGlow{
-  0%,58%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.12),0 16px 40px -10px rgba(0,0,0,.6)}
-  74%{box-shadow:0 0 0 1px rgba(53,190,223,.45),0 16px 40px -10px rgba(0,0,0,.6),0 0 22px 5px rgba(0,160,200,.38)}
-  88%{box-shadow:0 0 0 1px rgba(255,255,255,.16),0 16px 40px -10px rgba(0,0,0,.6),0 0 12px 2px rgba(0,160,200,.16)}}
 @keyframes lensCore{0%,58%,100%{filter:brightness(1)}74%{filter:brightness(1.45) saturate(1.1)}}
 @keyframes lensRing{0%,58%{opacity:0;transform:scale(1)}70%{opacity:.75}100%{opacity:0;transform:scale(1.7)}}
 @media (max-width:700px){.art__lensbig .pulse{display:none}}
@@ -272,13 +276,9 @@ ul,ol{list-style:none;padding:0}
 .strip{margin-top:clamp(48px,6vw,80px);border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:repeat(2,1fr)}
 .strip__item{display:flex;align-items:center;gap:.8rem;padding:1.3rem 1rem 1.3rem 0;font-size:.9375rem;color:#C9D6E0}
 .strip__item .ic{width:22px;height:22px;color:var(--cyan-2)}
-.strip__price{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.2rem 0 1.6rem;border-top:1px solid rgba(255,255,255,.1)}
-.strip__price small{display:block;font-size:.8125rem;color:var(--grey-d)}
-.strip__price strong{font:700 clamp(1.4rem,1.1rem + 1vw,1.9rem)/1 var(--f-d);letter-spacing:-.02em;white-space:nowrap}
 @media (min-width:900px){
-  .strip{grid-template-columns:repeat(4,auto) 1fr}
+  .strip{grid-template-columns:repeat(4,1fr)}
   .strip__item{padding:1.6rem 2rem 1.8rem 0}
-  .strip__price{grid-column:auto;border-top:0;justify-content:flex-end;text-align:right;padding:1.6rem 0 1.8rem}
 }
 
 /* ==========================================================================
@@ -447,8 +447,8 @@ ul,ol{list-style:none;padding:0}
 .work__img{position:relative;height:var(--h);max-width:min(78vw,760px);border-radius:var(--r-l);overflow:hidden;background:#0A2236}
 .work__img img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
 .work__img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,17,32,.35));opacity:.7;transition:opacity .5s}
-.work__zoom{position:absolute;right:14px;top:14px;z-index:1;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(0,17,32,.55);
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(255,255,255,.18);transform:scale(.85);opacity:0;transition:opacity .4s,transform .4s var(--ease)}
+.work__zoom{position:absolute;right:14px;top:14px;z-index:1;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(0,17,32,.72);
+  color:#fff;border:1px solid rgba(255,255,255,.18);transform:scale(.85);opacity:0;transition:opacity .4s,transform .4s var(--ease)}
 .work__zoom .ic{width:20px;height:20px}
 .work:hover .work__img img,.work:focus-visible .work__img img{transform:scale(1.045)}
 .work:hover .work__zoom,.work:focus-visible .work__zoom{opacity:1;transform:scale(1)}
@@ -633,13 +633,16 @@ ul,ol{list-style:none;padding:0}
 .is-loaded .art__person img{animation:personIn 1.3s var(--ease) .35s both}
 .is-loaded .art__card{animation:cardIn 1.1s var(--ease) .75s both}
 .is-loaded .art__chip{animation:up 1s var(--ease) .9s both}
-.is-loaded .art__lensbig{animation:pop .9s var(--ease) .6s both,lensGlow 3s ease-in-out 1.6s infinite}
+.is-loaded .art__lensbig{animation:pop .9s var(--ease) .6s both}
 @keyframes up{to{opacity:1;transform:none}}
 @keyframes frameIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
 @keyframes personIn{from{opacity:0;transform:translate(-47%,6%)}to{opacity:1;transform:translateX(-47%)}}
 @keyframes cardIn{from{opacity:0;transform:rotate(-2deg) translateY(30px)}to{opacity:1;transform:rotate(-7deg)}}
 @keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
 .float{animation:float 7s ease-in-out infinite}
+/* Hors écran, le Hero cesse de consommer des images par seconde */
+.hero.is-away .wv,.hero.is-away .art__lensbig::after,.hero.is-away .art__lensbig i::after,
+.hero.is-away .art__lensbig .pulse,.hero.is-away .float{animation-play-state:paused}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -8px}}
 [data-i18n]{transition:opacity .2s}
 .is-switching [data-i18n]{opacity:.35}
@@ -648,7 +651,7 @@ ul,ol{list-style:none;padding:0}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .rv,.hero .ld{opacity:1!important;transform:none!important}
-  .hero__waves .wv,.art__lensbig,.art__lensbig i::after{animation:none!important;transform:none!important;filter:none!important}
+  .hero__waves .wv,.art__lensbig,.art__lensbig::after,.art__lensbig i::after{animation:none!important;transform:none!important;filter:none!important;opacity:0!important}
   .art__lensbig .pulse,.art__chip .spark{display:none!important}
   .fab::before,.fab::after{display:none!important}
   .fab .ic{animation:none!important;transform:none!important}
@@ -799,7 +802,6 @@ ul,ol{list-style:none;padding:0}
       <div class="strip__item"><svg class="ic"><use href="#i-image"/></svg><span data-i18n="strip.2">2 visuels personnalisés</span></div>
       <div class="strip__item"><svg class="ic"><use href="#i-card"/></svg><span data-i18n="strip.3">100 cartes imprimées</span></div>
       <div class="strip__item"><svg class="ic"><use href="#i-folder"/></svg><span data-i18n="strip.4">Fichiers prêts à l’emploi</span></div>
-      <a class="strip__price" href="#tarif"><span><small data-i18n="hero.pack">Pack Starter</small><strong data-i18n="price.value">75 000 FCFA</strong></span></a>
     </div>
   </div>
 </section>
@@ -1056,7 +1058,7 @@ ul,ol{list-style:none;padding:0}
       </div>
       <div class="clist rv" style="--d:.2s">
         <a data-wa="talk" href="https://wa.me/22898978383" target="_blank" rel="noopener"><span class="ico"><svg class="ic"><use href="#i-wa"/></svg></span><span><small>WhatsApp</small>+228 98 97 83 83</span><svg class="ic go"><use href="#i-up"/></svg></a>
-        <a href="mailto:joscartpro@outlook.com" target="_blank" rel="noopener"><span class="ico"><svg class="ic"><use href="#i-mail"/></svg></span><span><small>E-mail</small>joscartpro@outlook.com</span><svg class="ic go"><use href="#i-up"/></svg></a>
+        <a href="mailto:contact@joscart.net" target="_blank" rel="noopener"><span class="ico"><svg class="ic"><use href="#i-mail"/></svg></span><span><small>E-mail</small>contact@joscart.net</span><svg class="ic go"><use href="#i-up"/></svg></a>
         <a href="https://www.instagram.com/joscart_/" target="_blank" rel="noopener"><span class="ico"><svg class="ic"><use href="#i-insta"/></svg></span><span><small>Instagram</small>@joscart_</span><svg class="ic go"><use href="#i-up"/></svg></a>
         <div><span class="ico"><svg class="ic"><use href="#i-pin"/></svg></span><span><small data-i18n="contact.based">Basé à</small>Lomé, Togo</span></div>
       </div>
@@ -1327,13 +1329,27 @@ var navLinks = Array.prototype.slice.call(nav.querySelectorAll(".nav__links a"))
 var current = "accueil";
 var fab = document.getElementById("fab");
 var hero = document.getElementById("accueil");
+var secs = Array.prototype.slice.call(document.querySelectorAll("[data-sec]"));
 
+/* Un seul écouteur de défilement, synchronisé sur le rafraîchissement de l'écran.
+   Les positions des sections sont mesurées une fois, pas à chaque pixel parcouru. */
+var heroH = 0, tops = [], ticking = false;
+function measure(){
+  heroH = hero.offsetHeight;
+  tops = secs.map(function(s){ return {sec:s.dataset.sec, top:s.offsetTop}; });
+}
 function onScroll(){
   var y = window.scrollY;
   nav.classList.toggle("is-scrolled", y > 24);
-  fab.classList.toggle("is-on", y > hero.offsetHeight * .8);
+  fab.classList.toggle("is-on", y > heroH * .8);
+  var mid = y + window.innerHeight * .38, best = null;
+  for (var i = 0; i < tops.length; i++) if (tops[i].top <= mid) best = tops[i].sec;
+  if (best && best !== current) { current = best; movePill(); }
+  ticking = false;
 }
-window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+window.addEventListener("scroll", function(){
+  if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+}, {passive:true});
 
 function movePill(){
   var a = nav.querySelector('.nav__links a[data-nav="' + current + '"]');
@@ -1343,14 +1359,13 @@ function movePill(){
   pill.style.width = a.offsetWidth + "px";
   pill.style.transform = "translateX(" + a.offsetLeft + "px)";
 }
-var secs = Array.prototype.slice.call(document.querySelectorAll("[data-sec]"));
-function pickSection(){
-  var mid = window.innerHeight * .38, best = null;
-  secs.forEach(function(s){ var r = s.getBoundingClientRect(); if (r.top <= mid && r.bottom > mid) best = s; });
-  if (best && best.dataset.sec !== current) { current = best.dataset.sec; movePill(); }
+window.addEventListener("resize", function(){ measure(); movePill(); updateTrack(); }, {passive:true});
+
+/* Le Hero arrête ses animations dès qu'il sort de l'écran */
+if ("IntersectionObserver" in window) {
+  new IntersectionObserver(function(e){ hero.classList.toggle("is-away", !e[0].isIntersecting); },
+    {threshold:0}).observe(hero);
 }
-window.addEventListener("scroll", pickSection, {passive:true});
-window.addEventListener("resize", function(){ movePill(); updateTrack(); }, {passive:true});
 
 /* Menu mobile */
 var burger = nav.querySelector(".nav__burger");
@@ -1560,9 +1575,17 @@ fSend.addEventListener("click", function(e){
 /* ------------------------------ Initialisation ------------------------------ */
 applyLang(lang, false);
 updateTrack();
-pickSection(); movePill();
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ movePill(); updateTrack(); });
+measure(); onScroll(); movePill();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ measure(); movePill(); updateTrack(); });
 requestAnimationFrame(function(){ document.body.classList.add("is-loaded"); });
+
+/* Le rendu initial est fait : on rend la page entièrement mesurable. */
+function releaseCV(){
+  document.documentElement.classList.add("cv-off");
+  requestAnimationFrame(function(){ measure(); movePill(); });
+}
+if ("requestIdleCallback" in window) requestIdleCallback(releaseCV, {timeout:1500});
+else setTimeout(releaseCV, 600);
 })();
 </script>
 </body>
