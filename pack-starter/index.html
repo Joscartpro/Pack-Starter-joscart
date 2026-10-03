@@ -109,12 +109,8 @@ ul,ol{list-style:none;padding:0}
 
 /* Sections — alternance Dark / Light */
 .sec{position:relative;padding-block:var(--sec-y)}
-/* Au premier affichage, les sections hors écran ne sont ni mises en page ni peintes :
-   environ 300 ms gagnés sur mobile. Une fois la page affichée, le script retire cette
-   optimisation (classe .cv-off) pour que les ancres et la recherche du navigateur
-   retrouvent des positions exactes. */
-.sec:not(.hero){content-visibility:auto;contain-intrinsic-size:auto 900px}
-.cv-off .sec:not(.hero){content-visibility:visible}
+/* content-visibility a été essayé ici : environ 250 ms gagnés au chargement, mais le
+   Hero restait blanc jusqu'au premier défilement sur le site réel. Écarté volontairement. */
 .sec--dark{background:var(--night);color:var(--white);margin-inline:var(--panel-m);border-radius:var(--r-xl);isolation:isolate;overflow:hidden}
 .sec--light{background:var(--sec-light)}
 .sec--cool{background:var(--sec-cool)}
@@ -1579,13 +1575,8 @@ measure(); onScroll(); movePill();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ measure(); movePill(); updateTrack(); });
 requestAnimationFrame(function(){ document.body.classList.add("is-loaded"); });
 
-/* Le rendu initial est fait : on rend la page entièrement mesurable. */
-function releaseCV(){
-  document.documentElement.classList.add("cv-off");
-  requestAnimationFrame(function(){ measure(); movePill(); });
-}
-if ("requestIdleCallback" in window) requestIdleCallback(releaseCV, {timeout:1500});
-else setTimeout(releaseCV, 600);
+/* Une seconde mesure après stabilisation des polices et des images. */
+setTimeout(function(){ measure(); movePill(); }, 800);
 })();
 </script>
 </body>
